@@ -1,0 +1,5 @@
+#ifdef BRDF_EXPORTS
+#define BRDF_EXTERN
+#else
+#define BRDF_EXTERN extern
+#endif
