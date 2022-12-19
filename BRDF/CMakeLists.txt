@@ -21,10 +21,17 @@ file(GLOB BRDFSourceFiles
 )
 source_group("Source\\BRDF" FILES ${BRDFSourceFiles})
 
+file(GLOB BRDFMicrofacetBasedSourceFiles
+    "Source/BRDF/MicrofacetBased/*.cpp"
+    "Source/BRDF/MicrofacetBased/*.h"
+)
+source_group("Source\\BRDF\\MicrofacetBased" FILES ${BRDFMicrofacetBasedSourceFiles})
+
 
 
 add_library(BRDF STATIC
     ${BRDFSourceFiles}
+    ${BRDFMicrofacetBasedSourceFiles}
 )
 
 
@@ -33,6 +40,8 @@ target_link_libraries(BRDF
     PUBLIC 
         UL
         WAL
+        d3d11.lib 
+        d3dcompiler.lib
 )
 
 target_include_directories(BRDF
