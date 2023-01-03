@@ -11,7 +11,8 @@ namespace BRDF {
 
 	struct S_BRDFModelDesc {
 
-		std::vector<S_ShaderCode> extendedTops;
+		std::string shaderFilePath = "BRDF/DefaultShader";
+		XMFLOAT3 clearColor = {1.0f, 1.0f, 1.0f};
 
 	};
 
@@ -23,17 +24,21 @@ namespace BRDF {
 
 	private:
 		S_BRDFModelDesc m_Desc;
+		I_Shader* m_Shader;
 
 
 
-	public:
+	protected:
 		I_BRDFModel(const S_BRDFModelDesc& desc);
 
+	public:
 		virtual void Release() override;
 
-		virtual I_Shader* BuildShader();
+		virtual void BuildShader();
+		virtual std::vector<S_ShaderFeature> GetShaderFeatures() { return {}; }
 
 		S_BRDFModelDesc GetDesc() { return m_Desc; }
+		I_Shader* GetShader() { return m_Shader; }
 
 	};
 

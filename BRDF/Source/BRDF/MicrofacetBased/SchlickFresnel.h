@@ -11,7 +11,7 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		extern S_ShaderCode SchlickFresnel();
+		extern S_ShaderFeature SchlickFresnel();
 
 	}
 

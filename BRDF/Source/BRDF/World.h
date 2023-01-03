@@ -14,6 +14,7 @@ namespace BRDF {
 	struct S_WorldDesc {
 
 		std::vector<I_Object*> objects;
+		XMFLOAT3 skyColor = {1.0f, 1.0f, 1.0f};
 
 	};
 
@@ -43,6 +44,7 @@ namespace BRDF {
 		virtual void LateRender();
 
 		S_WorldDesc GetDesc() { return m_Desc; }
+		void SetSkyColor(XMFLOAT3 color) { m_Desc.skyColor = color; }
 
 	};
 

@@ -9,6 +9,9 @@ include(${BRDF_CMAKE_DIR}/APIOptions.cmake)
 set(BRDF_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source PARENT_SCOPE)
 set(BRDF_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source)
 
+set(BRDF_SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders PARENT_SCOPE)
+set(BRDF_SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders)
+
 
 
 configure_file(ConfigurationFiles/BRDF/.BuildInfo ${CMAKE_CURRENT_BINARY_DIR}/ConfigurationFiles/BRDF/.BuildInfo)
@@ -33,8 +36,6 @@ add_library(BRDF STATIC
     ${BRDFSourceFiles}
     ${BRDFMicrofacetBasedSourceFiles}
 )
-
-
 
 target_link_libraries(BRDF
     PUBLIC 

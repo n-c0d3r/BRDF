@@ -8,12 +8,9 @@ namespace BRDF {
 
 	I_Object::I_Object(const S_ObjectDesc& desc) :
 		m_Desc(desc),
+		m_Mesh(desc.mesh),
 		m_RasterizerState(0),
-		m_Data({
-
-			desc.transform
-
-		})
+		m_Data(desc.data)
 	{
 
 
@@ -52,6 +49,20 @@ namespace BRDF {
 
 		d3d11Device->CreateRasterizerState(&rsDesc, &m_RasterizerState);
 
+
+
+		/**
+		 *	Create Data CBuffer
+		 */
+		D3D11_BUFFER_DESC CBDesc;
+		CBDesc.Usage = D3D11_USAGE_DYNAMIC;
+		CBDesc.ByteWidth = sizeof(S_ObjectCBufferData);
+		CBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		CBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		CBDesc.MiscFlags = 0;
+
+		d3d11Device->CreateBuffer(&CBDesc, 0, &m_ObjectCBuffer);
+
 	}
 	void I_Object::PreUpdate() {
 
@@ -70,12 +81,16 @@ namespace BRDF {
 	}
 	void I_Object::PreRender() {
 
-
+		XMStoreFloat4x4(&m_ObjectCBufferData.transform, XMMatrixTranspose(m_Data.transform));
+		
+		m_ObjectCBufferData.material = m_Data.material;
 
 	}
 	void I_Object::Render() {
 
+		I_Application* application = I_Application::GetInstance();
 
+		application->GetRenderer()->DrawObject(this);
 
 	}
 	void I_Object::LateRender() {

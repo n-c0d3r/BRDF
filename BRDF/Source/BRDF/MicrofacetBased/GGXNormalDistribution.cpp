@@ -6,9 +6,11 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		S_ShaderCode GGXNormalDistribution() {
+		S_ShaderFeature GGXNormalDistribution() {
 
-			return {};
+			return {
+				"BRDF/MicrofacetBased/GGXNormalDistribution" 
+			};
 		}
 
 	}

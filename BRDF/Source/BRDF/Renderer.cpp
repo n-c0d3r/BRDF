@@ -1,6 +1,11 @@
 #include "Renderer.h"
 
 #include "Application.h"
+#include "BRDFModel.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "World.h"
+#include "Object.h"
 
 #include <system_error>
 
@@ -106,14 +111,93 @@ namespace BRDF {
 
 		Resize();
 
+
+
+		D3D11_BUFFER_DESC frameCBDesc;
+		frameCBDesc.Usage = D3D11_USAGE_DYNAMIC;
+		frameCBDesc.ByteWidth = sizeof(S_FrameCBufferData);
+		frameCBDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		frameCBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		frameCBDesc.MiscFlags = 0;
+
+		m_D3D11Device->CreateBuffer(&frameCBDesc, 0, &m_FrameCBuffer);
+
 	}
 
 	void I_Renderer::Release() {
+
+		m_DepthStencil->Release();
+		m_DSV->Release();
+		m_RTV->Release();
+		m_DXGISwapChain->Release();
+		m_D3D11ImmediateDeviceContext->Release();
+		m_D3D11Device->Release();
+		m_DXGIDevice->Release();
+		m_DXGIAdapter->Release();
+		m_DXGIFactory->Release();
 
 		UL::I_AbstractObject::Release();
 
 	}
 
+	void I_Renderer::BeginFrame() {
+
+		Clear();
+
+
+
+		m_D3D11ImmediateDeviceContext->OMSetRenderTargets(1, &m_RTV, m_DSV);
+		m_D3D11ImmediateDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
+
+		I_Application* application = I_Application::GetInstance();
+
+
+
+		I_Shader* shader = application->GetBRDFModel()->GetShader();
+
+		shader->Apply();
+
+
+
+		UpdateFrameBuffer();
+
+	}
+	void I_Renderer::EndFrame() {
+
+		Present();
+
+	}
+	void I_Renderer::UpdateFrameBuffer() {
+
+		I_Application* application = I_Application::GetInstance();
+
+		C_Camera* camera = application->GetCamera();
+
+
+
+		XMStoreFloat4x4(&m_FrameCBufferData.world2View, XMMatrixTranspose(camera->GetViewMatrix()));
+		XMStoreFloat4x4(&m_FrameCBufferData.view2Proj, XMMatrixTranspose(camera->GetProjMatrix()));
+
+		XMVECTOR scale;
+		XMVECTOR rot;
+		XMVECTOR trans;
+		XMMatrixDecompose(&scale, &rot, &trans, camera->GetTransform());
+		XMStoreFloat3(&m_FrameCBufferData.cameraPosition, trans);
+
+		m_FrameCBufferData.skyColor = application->GetWorld()->GetDesc().skyColor;
+
+
+
+		D3D11_MAPPED_SUBRESOURCE mr;
+		m_D3D11ImmediateDeviceContext->Map(m_FrameCBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mr);
+
+		memcpy(mr.pData, &m_FrameCBufferData, sizeof(S_FrameCBufferData));
+
+		m_D3D11ImmediateDeviceContext->Unmap(m_FrameCBuffer, 0);
+
+	}
 	void I_Renderer::Resize() {
 
 		if (m_RTV != 0) {
@@ -199,13 +283,51 @@ namespace BRDF {
 
 	void I_Renderer::Clear() {
 
+		XMFLOAT3 clearColor = I_Application::GetInstance()->GetBRDFModel()->GetDesc().clearColor;
 
+		m_D3D11ImmediateDeviceContext->ClearRenderTargetView(m_RTV, (float*)&clearColor);
+		m_D3D11ImmediateDeviceContext->ClearDepthStencilView(m_DSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	}
 
 	void I_Renderer::DrawObject(I_Object* object) {
 
+		I_Application* application = I_Application::GetInstance();
 
+
+
+		ID3D11Buffer* cbs[2] = { m_FrameCBuffer, object->GetObjectCBuffer() };
+
+
+
+		D3D11_MAPPED_SUBRESOURCE mr;
+		m_D3D11ImmediateDeviceContext->Map(object->GetObjectCBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mr);
+
+		S_ObjectCBufferData objCBufferData = object->GetObjectCBufferData();
+
+		memcpy(mr.pData, &objCBufferData, sizeof(S_ObjectCBufferData));
+
+		m_D3D11ImmediateDeviceContext->Unmap(object->GetObjectCBuffer(), 0);
+
+
+
+		m_D3D11ImmediateDeviceContext->PSSetConstantBuffers(0, 2, cbs);
+		m_D3D11ImmediateDeviceContext->PSSetShader(application->GetBRDFModel()->GetShader()->GetPixelShader(),0,0);
+		
+		m_D3D11ImmediateDeviceContext->VSSetConstantBuffers(0, 2, cbs);
+		m_D3D11ImmediateDeviceContext->VSSetShader(application->GetBRDFModel()->GetShader()->GetVertexShader(),0,0);
+
+		m_D3D11ImmediateDeviceContext->IASetIndexBuffer(object->GetMesh()->GetIBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		
+		UL::U32 stride = sizeof(S_Vertex);
+		UL::U32 offset = 0;
+		ID3D11Buffer* vbuffer = object->GetMesh()->GetVBuffer();
+		m_D3D11ImmediateDeviceContext->IASetIndexBuffer(object->GetMesh()->GetIBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		m_D3D11ImmediateDeviceContext->IASetVertexBuffers(0, 1, &vbuffer, &stride, &offset);
+
+		m_D3D11ImmediateDeviceContext->RSSetState(object->GetRasterizerState());
+
+		m_D3D11ImmediateDeviceContext->DrawIndexed(object->GetMesh()->GetDesc().indices.size(), 0, 0);
 
 	}
 

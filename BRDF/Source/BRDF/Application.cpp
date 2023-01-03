@@ -2,6 +2,7 @@
 
 #include "World.h"
 #include "Camera.h"
+#include "BRDFModel.h"
 
 
 
@@ -12,6 +13,7 @@ namespace BRDF {
 		m_Window(0),
 		m_IsRunning(false),
 		m_Renderer(0),
+		m_BRDFModel(desc.brdfModel),
 		m_Camera(desc.camera),
 		m_World(desc.world)
 	{
@@ -40,6 +42,13 @@ namespace BRDF {
 
 		});
 
+
+
+		/**
+		 *	Create Shader
+		 */
+		m_BRDFModel->BuildShader();
+
 	}
 
 	void I_Application::Start() {
@@ -62,8 +71,12 @@ namespace BRDF {
 			}
 			else {
 
+				PreUpdate();
 				Update();
+				LateUpdate();
+				PreRender();
 				Render();
+				LateRender();
 
 			}
 
@@ -113,6 +126,7 @@ namespace BRDF {
 	}
 	void I_Application::Release() {
 
+		m_BRDFModel->Release();
 		m_Camera->Release();
 		m_World->Release();
 		m_Renderer->Release();

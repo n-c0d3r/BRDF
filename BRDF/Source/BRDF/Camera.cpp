@@ -10,7 +10,11 @@ namespace BRDF {
 
 	C_Camera::C_Camera(const S_CameraDesc& desc) :
 		m_Desc(desc),
-		m_Controller(desc.controller)
+		m_Controller(desc.controller),
+		m_Transform(desc.transform),
+		m_NearPlane(desc.nearPlane),
+		m_FarPlane(desc.farPlane),
+		m_FOV(desc.fov)
 	{
 
 
@@ -59,6 +63,19 @@ namespace BRDF {
 
 		m_Controller->LateRender();
 
+	}
+
+	XMMATRIX C_Camera::GetViewMatrix() {
+
+		XMVECTOR det = XMMatrixDeterminant(m_Transform);
+
+		return XMMatrixInverse(&det, m_Transform);		
+	}
+	XMMATRIX C_Camera::GetProjMatrix() {
+
+		float aspectRatio = I_Application::GetInstance()->GetRenderer()->GetAspectRatio();
+
+		return XMMatrixPerspectiveFovLH(m_FOV, aspectRatio, m_NearPlane, m_FarPlane);
 	}
 
 }

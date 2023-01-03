@@ -2,6 +2,9 @@
 
 #include "Application.h"
 #include "Object.h"
+#include "Renderer.h"
+#include "BRDFModel.h"
+#include "Shader.h"
 
 
 
@@ -74,11 +77,19 @@ namespace BRDF {
 	}
 	void I_World::Render() {
 
+		I_Application* application = I_Application::GetInstance();
+
+		I_Renderer* renderer = application->GetRenderer();
+
+		renderer->BeginFrame();
+
 		for (int i = 0; i < m_Desc.objects.size(); ++i) {
 
 			m_Desc.objects[i]->Render();
 
 		}
+
+		renderer->EndFrame();
 
 	}
 	void I_World::LateRender() {

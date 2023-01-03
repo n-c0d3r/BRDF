@@ -5,6 +5,7 @@
 
 #include <BRDF/Application.h>
 #include <BRDF/World.h>
+#include <BRDF/Material.h>
 #include <BRDF/Object.h>
 #include <BRDF/Camera.h>
 #include <BRDF/CameraController.h>

@@ -7,14 +7,11 @@
 
 namespace BRDF {
 
-	struct S_ShaderCode;
+	struct S_ShaderFeature {
 
-	struct S_ShaderCode {
+		std::string path;
 
-		std::string name;
-		std::string code;
-
-		std::vector<S_ShaderCode> tops;
+		std::vector<S_ShaderFeature> features;
 
 	};
 
@@ -22,9 +19,9 @@ namespace BRDF {
 
 	struct S_ShaderDesc {
 
-		std::wstring filePath;
+		std::string filePath;
 
-		std::vector<S_ShaderCode> tops;
+		std::vector<S_ShaderFeature> features;
 
 	};
 
@@ -36,6 +33,10 @@ namespace BRDF {
 
 	private:
 		S_ShaderDesc m_Desc;
+		std::string m_CompiledFeatures;
+		ID3D11InputLayout* m_InputLayout;
+		ID3D11VertexShader* m_VertexShader;
+		ID3D11PixelShader* m_PixelShader;
 
 
 
@@ -47,7 +48,15 @@ namespace BRDF {
 
 		virtual void Apply();
 
+	private:
+		virtual std::string ReadFeatures();
+
+	public:
 		S_ShaderDesc GetDesc() { return m_Desc; }
+		std::string GetCompiledFeatures() { return m_CompiledFeatures; }
+		ID3D11InputLayout* GetInputLayout() { return m_InputLayout; }
+		ID3D11VertexShader* GetVertexShader() { return m_VertexShader; }
+		ID3D11PixelShader* GetPixelShader() { return m_PixelShader; }
 
 	};
 

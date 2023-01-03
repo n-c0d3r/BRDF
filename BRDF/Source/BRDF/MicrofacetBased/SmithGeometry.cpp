@@ -6,14 +6,21 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		S_ShaderCode SmithGeometry(
+		S_ShaderFeature SmithGeometry(
 
-			S_ShaderCode G1,
-			S_ShaderCode G2
+			const S_ShaderFeature& G1
 
 		) {
 
-			return {};
+			return {
+				"BRDF/MicrofacetBased/SmithGeometry",
+
+				{
+
+					G1
+
+				}
+			};
 		}
 
 	}

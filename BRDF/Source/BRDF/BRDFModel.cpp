@@ -14,13 +14,17 @@ namespace BRDF {
 
 	}
 
-	I_Shader* I_BRDFModel::BuildShader() {
+	void I_BRDFModel::BuildShader() {
+		
+		S_ShaderDesc shaderDesc = {
 
-		S_ShaderDesc shaderDesc;
+			m_Desc.shaderFilePath,
 
-		I_Shader* shader = new C_BasicShader(shaderDesc);
+			GetShaderFeatures()
 
-		return shader;
+		};
+
+		m_Shader = new C_BasicShader(shaderDesc);
 	}
 
 	void I_BRDFModel::Release() {

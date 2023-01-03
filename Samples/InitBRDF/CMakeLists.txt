@@ -18,6 +18,13 @@ add_executable(Samples.InitBRDF
 
 set_target_properties(Samples.InitBRDF
     PROPERTIES 
+        VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>
+)
+
+
+
+set_target_properties(Samples.InitBRDF
+    PROPERTIES 
         FOLDER "Samples"
 )
 

@@ -6,9 +6,11 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		S_ShaderCode GGXSchlickGeometry() {
+		S_ShaderFeature GGXSchlickGeometry() {
 
-			return {};
+			return {
+				"BRDF/MicrofacetBased/GGXSchlickGeometry"
+			};
 		}
 
 	}

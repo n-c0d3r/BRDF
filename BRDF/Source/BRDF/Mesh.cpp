@@ -78,4 +78,128 @@ namespace BRDF {
 
 	}
 
+	C_Mesh* C_Mesh::CreateBox(XMFLOAT3 size) {
+
+		C_Mesh* mesh = 0;
+
+		return mesh;
+	}
+
+	C_Mesh* C_Mesh::CreateSphere(float radius, UL::U32 sliceCount, UL::U32 stackCount) {
+
+		S_Vertex topVertex = { 
+			{0.0f, +radius, 0.0f}, 
+			{1.0f, 0.0f, 0.0f},
+			{0.0f, +1.0f, 0.0f},
+			{0.0f, 0.0f} 
+		};
+		S_Vertex bottomVertex = { 
+			{0.0f, -radius, 0.0f}, 
+			{1.0f, 0.0f, 0.0f},
+			{0.0f, -1.0f, 0.0f},
+			{0.0f, 1.0f}
+		};
+
+		std::vector<S_Vertex> vertices;
+		std::vector<UL::U32> indices;
+
+		vertices.push_back(topVertex);
+
+		float phiStep = XM_PI / stackCount;
+		float thetaStep = 2.0f * XM_PI / sliceCount;
+
+		// Compute vertices for each stack ring (do not count the poles as rings).
+		for (UL::U32 i = 1; i <= stackCount - 1; ++i)
+		{
+			float phi = i * phiStep;
+
+			// Vertices of ring.
+			for (UL::U32 j = 0; j <= sliceCount; ++j)
+			{
+				float theta = j * thetaStep;
+
+				S_Vertex v;
+
+				// spherical to cartesian
+				v.position.x = radius * sinf(phi) * cosf(theta);
+				v.position.y = radius * cosf(phi);
+				v.position.z = radius * sinf(phi) * sinf(theta);
+
+				// Partial derivative of P with respect to theta
+				v.tangent.x = -radius * sinf(phi) * sinf(theta);
+				v.tangent.y = 0.0f;
+				v.tangent.z = +radius * sinf(phi) * cosf(theta);
+
+				XMVECTOR T = XMLoadFloat3(&v.tangent);
+				XMStoreFloat3(&v.tangent, XMVector3Normalize(T));
+
+				XMVECTOR p = XMLoadFloat3(&v.position);
+				XMStoreFloat3(&v.normal, XMVector3Normalize(p));
+
+				v.texcoord.x = theta / XM_2PI;
+				v.texcoord.y = phi / XM_PI;
+
+				vertices.push_back(v);
+			}
+		}
+
+		vertices.push_back(bottomVertex);
+
+		//
+		// Compute indices for top stack.  The top stack was written first to the vertex buffer
+		// and connects the top pole to the first ring.
+		//
+
+		for (UL::U32 i = 1; i <= sliceCount; ++i)
+		{
+			indices.push_back(0);
+			indices.push_back(i + 1);
+			indices.push_back(i);
+		}
+
+		//
+		// Compute indices for inner stacks (not connected to poles).
+		//
+
+		// Offset the indices to the index of the first vertex in the first ring.
+		// This is just skipping the top pole vertex.
+		UL::U32 baseIndex = 1;
+		UL::U32 ringVertexCount = sliceCount + 1;
+		for (UL::U32 i = 0; i < stackCount - 2; ++i)
+		{
+			for (UL::U32 j = 0; j < sliceCount; ++j)
+			{
+				indices.push_back(baseIndex + i * ringVertexCount + j);
+				indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+				indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+
+				indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+				indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+				indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
+			}
+		}
+
+		//
+		// Compute indices for bottom stack.  The bottom stack was written last to the vertex buffer
+		// and connects the bottom pole to the bottom ring.
+		//
+
+		// South pole vertex was added last.
+		UL::U32 southPoleIndex = (UL::U32)vertices.size() - 1;
+
+		// Offset the indices to the index of the first vertex in the last ring.
+		baseIndex = southPoleIndex - ringVertexCount;
+
+		for (UL::U32 i = 0; i < sliceCount; ++i)
+		{
+			indices.push_back(southPoleIndex);
+			indices.push_back(baseIndex + i);
+			indices.push_back(baseIndex + i + 1);
+		}
+
+		C_Mesh* mesh = new C_Mesh({vertices, indices});
+
+		return mesh;
+	}
+
 }

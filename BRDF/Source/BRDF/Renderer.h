@@ -19,6 +19,19 @@ namespace BRDF {
 
 
 
+	struct S_FrameCBufferData {
+				 
+		XMFLOAT4X4 world2View;
+		XMFLOAT4X4 view2Proj;
+		XMFLOAT3 cameraPosition;
+		float pad1;
+		XMFLOAT3 skyColor;
+		float pad2;
+
+	};
+
+
+
 	class I_Renderer :
 		public UL::I_AbstractObject
 	{
@@ -41,6 +54,9 @@ namespace BRDF {
 		ID3D11RenderTargetView* m_RTV;
 		ID3D11DepthStencilView* m_DSV;
 		ID3D11Texture2D* m_DepthStencil;
+
+		S_FrameCBufferData m_FrameCBufferData;
+		ID3D11Buffer* m_FrameCBuffer;
 		
 
 
@@ -52,6 +68,9 @@ namespace BRDF {
 
 		void Resize();
 
+		virtual void BeginFrame();
+		virtual void EndFrame();
+		virtual void UpdateFrameBuffer();
 		virtual void Clear();
 		virtual void DrawObject(I_Object* object);
 		virtual void Present();
@@ -73,6 +92,8 @@ namespace BRDF {
 		ID3D11RenderTargetView* GetRTV() { return m_RTV; }
 		ID3D11DepthStencilView* GetDSV() { return m_DSV; }
 		ID3D11Texture2D* GetDepthStencil() { return m_DepthStencil; }
+
+		S_FrameCBufferData GetFrameCBufferData() { return m_FrameCBufferData; }
 
 	};
 

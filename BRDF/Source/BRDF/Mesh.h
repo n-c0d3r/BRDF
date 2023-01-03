@@ -36,7 +36,10 @@ namespace BRDF {
 
 		virtual void RebuildBuffers();
 
-		S_MeshDesc GetDesc() { return m_Desc; }
+		static C_Mesh* CreateBox(XMFLOAT3 size);
+		static C_Mesh* CreateSphere(float radius, UL::U32 sliceCount, UL::U32 stackCount);
+
+		const S_MeshDesc& GetDesc() { return m_Desc; }
 		ID3D11Buffer* GetVBuffer() { return m_VBuffer; }
 		ID3D11Buffer* GetIBuffer() { return m_IBuffer; }
 

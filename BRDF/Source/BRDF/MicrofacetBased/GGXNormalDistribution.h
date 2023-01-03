@@ -11,7 +11,7 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		extern S_ShaderCode GGXNormalDistribution();
+		extern S_ShaderFeature GGXNormalDistribution();
 
 	}
 

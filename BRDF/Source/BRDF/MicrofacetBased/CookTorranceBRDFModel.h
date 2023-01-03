@@ -14,9 +14,13 @@ namespace BRDF {
 		struct S_CookTorranceMicrofacetModelDesc
 		{
 
-			S_ShaderCode F; // Fresnel
-			S_ShaderCode G; // Geometry Attenuation
-			S_ShaderCode D; // Normal Distribution
+			// Diffuse BRDF
+			S_ShaderFeature DiffuseBRDF;
+
+			//Specular BRDF
+			S_ShaderFeature F; // Fresnel
+			S_ShaderFeature G; // Geometry Attenuation
+			S_ShaderFeature D; // Normal Distribution
 
 		};
 
@@ -42,6 +46,8 @@ namespace BRDF {
 			C_CookTorranceBRDFModel(const S_CookTorranceModelDesc& desc);
 
 			virtual void Release() override;
+
+			virtual std::vector<S_ShaderFeature> GetShaderFeatures() override;
 
 			S_CookTorranceMicrofacetModelDesc GetMicrofacetModelDesc() { return m_MicrofacetModelDesc; }
 

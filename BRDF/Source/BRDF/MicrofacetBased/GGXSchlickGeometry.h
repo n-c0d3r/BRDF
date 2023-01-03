@@ -11,7 +11,7 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		extern S_ShaderCode GGXSchlickGeometry();
+		extern S_ShaderFeature GGXSchlickGeometry();
 
 	}
 

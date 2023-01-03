@@ -6,9 +6,11 @@ namespace BRDF {
 
 	namespace MicrofacetBased {
 
-		S_ShaderCode SchlickFresnel() {
+		S_ShaderFeature SchlickFresnel() {
 
-			return {};
+			return {
+				"BRDF/MicrofacetBased/SchlickFresnel"
+			};
 		}
 
 	}

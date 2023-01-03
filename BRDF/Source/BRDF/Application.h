@@ -9,14 +9,16 @@
 
 namespace BRDF {
 
-	class I_World;
+	class I_BRDFModel;
 	class C_Camera;
+	class I_World;
 
 
 
 	struct S_ApplicationDesc {
 
 		WAL::S_WindowDesc windowDesc;
+		I_BRDFModel* brdfModel;
 		C_Camera* camera;
 		I_World* world;
 
@@ -35,6 +37,7 @@ namespace BRDF {
 		WAL::I_Window* m_Window;
 		bool m_IsRunning;
 		I_Renderer* m_Renderer;
+		I_BRDFModel* m_BRDFModel;
 		C_Camera* m_Camera;
 		I_World* m_World;
 
@@ -59,6 +62,8 @@ namespace BRDF {
 		WAL::I_Window* GetWindow() { return m_Window; }
 		bool IsRunning() { return m_IsRunning; }
 		I_Renderer* GetRenderer() { return m_Renderer; }
+		I_BRDFModel* GetBRDFModel() { return m_BRDFModel; }
+		C_Camera* GetCamera() { return m_Camera; }
 		I_World* GetWorld() { return m_World; }
 
 	};
